@@ -5,7 +5,7 @@ import queue
 import threading
 import concurrent.futures
 from functools import lru_cache
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from time import perf_counter
 from dataclasses import dataclass, field
 import requests
@@ -122,8 +122,8 @@ class TickersHistory:
         :return: str, JSON-строка с историческими данными.
         """
         try:
-            per1 = int(start_date.replace(tzinfo=timezone.utc).timestamp())
-            per2 = int(end_date.replace(tzinfo=timezone.utc).timestamp())
+            per1 = int(start_date.replace(tzinfo=UTC).timestamp())
+            per2 = int(end_date.replace(tzinfo=UTC).timestamp())
             params = {"period1": str(per1), "period2": str(per2),
                     "interval": interval, "includeAdjustedClose": "true"}
             url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
@@ -131,14 +131,12 @@ class TickersHistory:
             user_agent_value = "Mozilla/5.0"
             headers = {user_agent_key: user_agent_value}
             response = requests.get(url, headers=headers, params=params)
+            if response.ok:
+                print(f'{threading.current_thread()} get {ticker=}.. OK')
+                return response.json()
         except Exception:
             print(f'{threading.current_thread()} get {ticker=}.. False')
             raise
-        if response.ok:
-            print(f'{threading.current_thread()} get {ticker=}.. OK')
-            return response.json()
-        else:
-            raise ValueError(f'{response.reason=} {response.status_code=}')
 
     def __parsing_data(self, future):
         """Функция-обработчик полученных котировок."""
@@ -146,18 +144,17 @@ class TickersHistory:
         if exception is not None:
             print(f'An error occurred: {exception}')
             return
-        else:
-            try:
-                result = future.result()
-                symbol = result['chart']['result'][0]['meta']['symbol']
-                timestamp = result['chart']['result'][0]['timestamp']
-                adjclose = result['chart']['result'][0]['indicators']['adjclose'][0]['adjclose']
-                data = pd.DataFrame(Ticker(symbol, t, a) for t, a in zip(timestamp, adjclose) if a)
-                self.__file_queue.put((data, symbol))
-                print(f'{threading.current_thread()} parsing.. OK')
-            except Exception:
-                print(f'{threading.current_thread()} parsing.. False')
-                raise
+        try:
+            result = future.result()
+            symbol = result['chart']['result'][0]['meta']['symbol']
+            timestamp = result['chart']['result'][0]['timestamp']
+            adjclose = result['chart']['result'][0]['indicators']['adjclose'][0]['adjclose']
+            data = pd.DataFrame(Ticker(symbol, t, a) for t, a in zip(timestamp, adjclose) if a)
+            self.__file_queue.put((data, symbol))
+            print(f'{threading.current_thread()} parsing.. OK')
+        except Exception:
+            print(f'{threading.current_thread()} parsing.. False')
+            raise
 
     def __save_history(self):
         """Функция-поток для записи файлов из очереди на диск."""
