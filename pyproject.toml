@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [project.scripts]
-tickers = "tickers_history.main:execute_main"
+tickers_history = "tickers_history.main:execute_main"
