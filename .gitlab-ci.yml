@@ -5,4 +5,5 @@ include:
     inputs:
       image: registry.hub.docker.com/library/python:3
       pylint-enabled: true
+      pylint-args: --ignore=tests
       pytest-enabled: true
