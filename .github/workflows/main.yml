@@ -14,7 +14,7 @@ jobs:
           - os: ubuntu-latest
             python-version: '2.7'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Checking out the repo
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -22,9 +22,10 @@ jobs:
           cache: 'pipenv'
       - name: Display Python version
         run: python --version
-      - name: Install pipenv
-        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
-      - run: pipenv install
+      - name: Install dependencies
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: install -d # Install all dependencies, including development ones
       - name: Run pytest
         uses: cclauss/GitHub-Action-for-pytest@master
         with:
