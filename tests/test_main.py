@@ -1,4 +1,4 @@
-from tickers_history.main import TickersHistory
+from src.tickers_history.main import TickersHistory
 
 def test_normalize():
     th = TickersHistory('tickers.txt', '01.01.20')
