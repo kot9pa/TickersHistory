@@ -26,14 +26,12 @@ jobs:
         uses: VaultVulp/action-pipenv@v2.0.1
         with:
           command: install -d # Install all dependencies, including development ones
-      - name: Install dependencies
-        run: |
-          pip install flake8
       - name: Lint with flake8
         run: |
+          pip install flake8
           flake8 --max-line-length 1000 src/
         continue-on-error: true
       - name: Run pytest
         uses: cclauss/GitHub-Action-for-pytest@master
         with:
-          args: pytest -v -s
+          args: pytest --rootdir='tests' -v -s
