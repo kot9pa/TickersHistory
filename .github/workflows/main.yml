@@ -20,12 +20,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pipenv'
       - name: Display Python version
-        run: python --version
+        run: |
+          python --version
       - name: Install dependencies
         uses: VaultVulp/action-pipenv@v2.0.1
         with:
           command: install -d # Install all dependencies, including development ones
+      - name: Install dependencies
+        run: |
+          pip install flake8
+      - name: Lint with flake8
+        run: |
+          flake8 --max-line-length 1000 src/
+        continue-on-error: true
       - name: Run pytest
         uses: cclauss/GitHub-Action-for-pytest@master
         with:
-          args: pytest --rootdir='tests' test_main.py
+          args: pytest -v -s
