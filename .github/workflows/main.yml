@@ -1,5 +1,4 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions
+name: Build & Test
 on: [workflow_dispatch]
 jobs:
   build:
@@ -20,5 +19,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pipenv'
       - name: Display Python version
         run: python --version
+      - name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+      - run: pipenv install
+      - name: Run pytest
+        uses: cclauss/GitHub-Action-for-pytest@master
+        with:
+          args: pytest --rootdir='tests' main.py
