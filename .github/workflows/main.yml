@@ -34,4 +34,4 @@ jobs:
       - name: Run pytest
         uses: cclauss/GitHub-Action-for-pytest@master
         with:
-          args: pytest --rootdir='src' -v -s
+          args: pytest -v -s
