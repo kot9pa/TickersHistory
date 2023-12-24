@@ -32,6 +32,5 @@ jobs:
           flake8 --max-line-length 1000 src/
         continue-on-error: true
       - name: Run pytest
-        uses: cclauss/GitHub-Action-for-pytest@master
-        with:
-          args: pytest -v -s
+        run: |
+          python -m pytest -v -s
